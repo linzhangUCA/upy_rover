@@ -1,0 +1,20 @@
+[project]
+name = "upyton-mobile-robot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "linzhanguca", email = "lzhang12@uca.edu" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "micropython-rp2-rpi-pico2-stubs>=1.29.0.post1",
+    "mpremote>=1.29.0",
+    "pyright>=1.1.414",
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.24,<0.13.0"]
+build-backend = "uv_build"
