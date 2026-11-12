@@ -6,38 +6,37 @@ from machine import Timer
 class RegulatedWheel:
     def __init__(
         self,
-        motor_pin_ids: list | Tuple,
-        encoder_pin_ids: list | tuple,
-        mech_chars: dict,  # mechanical characteristics
-        meas_freq: int = 200,
-        pid_gains: dict = {
-            "K_P": 0.0,
-            "K_I": 0.0,
-            "K_D": 0.0,
-        },
-        reg_freq: int = 100,
+        configs: dict = {
+            "motor_pin_ids",  # tuple
+            "sentient_wheel_configs",  # dict
+            "K_P",
+            "K_I",
+            "K_D",
+            "reg_freq",
+        }
     ):
-        self.motor = Motor(*motor_pin_ids)
-        self.wheel = SentientWheel(encoder_pin_ids, mech_chars, meas_freq)
+        # Base components
+        self.motor = Motor(*configs["motor_pin_ids"])
+        self.wheel = SentientWheel(configs["sentient_wheel_configs"])
+        # Constants
+        self._kp = configs["K_P"]
+        self._ki = configs["K_I"]
+        self._kd = configs["K_D"]
+        self._freq = configs["reg_freq"]
+        # Controller timer
         self.vel_reg_timer = Timer(
-            freq=reg_freq,
+            freq=self._freq,
             mode=Timer.PERIODIC,
             callback=self.regulate_velocity,
-
         )
-        # Constants
-        self._kp = pid_gains["K_P"]
-        self._ki = pid_gains["K_I"]
-        self._kd = pid_gains["K_D"]
-        self._reg_freq = reg_freq
         # Variables
         self.ref_vel = 0.0
         self.prev_err = 0.0
         self.sum_err = 0.0
-        self.reg_vel_counter = 0
+        self.reg_counter = 0
 
     def regulate_velocity(self, timer):
-        if self.ref_vel == 0.0 or self.reg_vel_counter > self._reg_freq:
+        if self.ref_vel == 0.0 or self.reg_counter > self._freq:
             self.motor.short_break()
             self.prev_err = 0.0
         else:
@@ -56,7 +55,7 @@ class RegulatedWheel:
                 self.motor.backward(-u)
             else:
                 self.motor.short_break()
-            self.reg_vel_counter += 1
+            self.reg_counter += 1
 
 
     def set_vel(self, reference_value=0.0):
@@ -64,27 +63,27 @@ class RegulatedWheel:
             self.ref_vel = reference_value
             self.prev_err = 0.0
             self.sum_err = 0.0
-            self.reg_vel_counter = 0
+            self.reg_counter = 0
 
 if __name__ == "__main__":
     from time import sleep
     from machine import Pin
     # SETUP
     regw = RegulatedWheel(
-        motor_pin_ids=(9, 10, 11),
-        encoder_pin_ids=(16, 17),
-        mech_chars={
-            "wheel_radius": 0.021,  # m
-            "gear_ratio": 100,
-            "encoder_cpr": 28,
-        },
-        meas_freq=150,
-        pid_gains={
-            "K_P": 2.0,
+        configs={
+            "motor_pin_ids": (9, 10, 11),
+            "sentient_wheel_configs": {
+                "encoder_ids": (16, 17),
+                "encoder_cpr": 28,
+                "wheel_radius": 0.021,
+                "gear_ratio": 100,
+                "vel_meas_freq": 150,
+            },
+            "K_P": 2.5,
             "K_I": 0.5,
             "K_D": 0.0,
-        },
-        reg_freq=75,
+            "reg_freq": 75,
+        }
     )
     STBY = Pin(12, Pin.OUT)
     STBY.value(1)  # enable motor driver
