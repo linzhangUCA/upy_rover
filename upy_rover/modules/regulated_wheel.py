@@ -29,32 +29,42 @@ class RegulatedWheel:
         self._kp = pid_gains["K_P"]
         self._ki = pid_gains["K_I"]
         self._kd = pid_gains["K_D"]
+        self._reg_freq = reg_freq
         # Variables
         self.ref_vel = 0.0
         self.prev_err = 0.0
         self.sum_err = 0.0
-
+        self.reg_vel_counter = 0
 
     def regulate_velocity(self, timer):
-        err = self.ref_vel - self.wheel.lin_vel
-        self.sum_err += err
-        d_err = err - self.prev_err  # ignored rescaling by dt
-        self.prev_err = err  # NOTE: error now is the past
-        u = self._kp * err + self._ki * self.sum_err + self._kd * d_err
-        if u > 0.0:
-            if u > 1.0:
-                u = 1.0
-            self.motor.forward(u)
-        elif u < 0.0:
-            if u < -1.0:
-                u = -1.0
-            self.motor.backward(-u)
-        else:
+        if self.ref_vel == 0.0 or self.reg_vel_counter > self._reg_freq:
             self.motor.short_break()
+            self.prev_err = 0.0
+        else:
+            err = self.ref_vel - self.wheel.lin_vel
+            self.sum_err += err
+            d_err = err - self.prev_err  # ignored rescaling by dt
+            self.prev_err = err  # NOTE: error now is the past
+            u = self._kp * err + self._ki * self.sum_err + self._kd * d_err
+            if u > 0.0:
+                if u > 1.0:
+                    u = 1.0
+                self.motor.forward(u)
+            elif u < 0.0:
+                if u < -1.0:
+                    u = -1.0
+                self.motor.backward(-u)
+            else:
+                self.motor.short_break()
+            self.reg_vel_counter += 1
+
 
     def set_vel(self, reference_value=0.0):
-        self.sum_err = 0.0
-        self.ref_vel = reference_value
+        if reference_value is not self.ref_vel:
+            self.ref_vel = reference_value
+            self.prev_err = 0.0
+            self.sum_err = 0.0
+            self.reg_vel_counter = 0
 
 
 
