@@ -15,7 +15,7 @@ class RegulatedWheel:
             "K_I": 0.0,
             "K_D": 0.0,
         },
-        reg_freq: int = 50,
+        reg_freq: int = 100,
     ):
         self.motor = Motor(*motor_pin_ids)
         self.wheel = SentientWheel(encoder_pin_ids, mech_chars, meas_freq)
@@ -66,6 +66,35 @@ class RegulatedWheel:
             self.sum_err = 0.0
             self.reg_vel_counter = 0
 
+if __name__ == "__main__":
+    from time import sleep
+    from machine import Pin
+    # SETUP
+    regw = RegulatedWheel(
+        motor_pin_ids=(9, 10, 11),
+        encoder_pin_ids=(16, 17),
+        mech_chars={
+            "wheel_radius": 0.021,  # m
+            "gear_ratio": 100,
+            "encoder_cpr": 28,
+        },
+        meas_freq=150,
+        pid_gains={
+            "K_P": 2.0,
+            "K_I": 0.5,
+            "K_D": 0.0,
+        },
+        reg_freq=75,
+    )
+    STBY = Pin(12, Pin.OUT)
+    STBY.value(1)  # enable motor driver
 
+    # LOOP
+    for refv in (-0.3, -0.2, -0.1, 0.0, 0.2, 0.4):
+        regw.set_vel(refv)
+        for _ in range(20):  # 2 sec for each ref vel
+            print(f"Reference velocity: {refv}, measured velocity: {regw.wheel.lin_vel}")
+            sleep(0.1)
 
+    STBY.value(0)  # disable motor driver
 
