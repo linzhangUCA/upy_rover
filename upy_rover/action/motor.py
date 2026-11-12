@@ -2,7 +2,7 @@ from machine import Pin, PWM
 
 
 class Motor:
-    """Controls a DC motor connected through an H-bridge driver.
+    """Base motor class drives a DC motor through an H-bridge driver.
 
     Manages direction via two digital GPIO pins and speed using a PWM pin.
     """
@@ -28,6 +28,7 @@ class Motor:
             effort (float, optional): Duty cycle normalized between 0.0 (off)
                 and 1.0 (full speed). Defaults to 0.0.
         """
+        assert 0.0 <= effort <= 1.0  # make sure effort in range
         dc_u16 = int(65_535 * effort)
         self.in1_pin.value(1)
         self.in2_pin.value(0)
@@ -40,6 +41,7 @@ class Motor:
             effort (float, optional): Duty cycle normalized between 0.0 (off)
                 and 1.0 (full speed). Defaults to 0.0.
         """
+        assert 0.0 <= effort <= 1.0
         dc_u16 = int(65_535 * effort)
         self.in1_pin.value(0)
         self.in2_pin.value(1)
