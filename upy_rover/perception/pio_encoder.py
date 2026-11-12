@@ -119,9 +119,9 @@ if __name__ == "__main__":
     from time import sleep
 
     # SETUP
-    enc = PIOEncoder(16, 17)
+    e = PIOEncoder(ch_a_id=16, ch_b_id=17)
 
     # LOOP
     while True:
-        print(f"Encoder counts: {enc.counts}")
+        print(f"Encoder counts: {e.counts}")
         sleep(0.1)
