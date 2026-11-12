@@ -1,20 +1,23 @@
-from upy_rover.perception.encoder import Encoder
-from machine import Timer
 from math import pi
+
+from machine import Timer
+
+from upy_rover.perception.encoder import Encoder
 
 
 class SentientWheel(Encoder):
     def __init__(
         self,
-        configs: dict = {
-            "encoder_ids",
-            "encoder_cpr",
-            "wheel_radius",
-            "gear_ratio",
-            "vel_meas_freq",
-        },
+        configs: dict,
+        # configs: dict = {
+        #     "encoder_pin_ids",
+        #     "encoder_cpr",
+        #     "wheel_radius",
+        #     "gear_ratio",
+        #     "vel_meas_freq",
+        # },
     ):
-        super().__init__(*configs["encoder_ids"])
+        super().__init__(*configs["encoder_pin_ids"])
         # Contants
         self._whlrad = configs["wheel_radius"]
         self._grat = configs["gear_ratio"]
@@ -49,18 +52,15 @@ if __name__ == "__main__":
     # SETUP
     sw = SentientWheel(
         configs={
-            "encoder_ids": (16, 17),
+            "encoder_pin_ids": (16, 17),
             "encoder_cpr": 28,
-            "wheel_radius": 0.021,
             "gear_ratio": 100,
+            "wheel_radius": 0.021,
             "vel_meas_freq": 150,
         }
     )
 
-
     # LOOP
     while True:
-        print(
-            f"Measured angular velocity: {sw.ang_vel}, linear velocity: {sw.lin_vel}"
-        )
+        print(f"Measured angular velocity: {sw.ang_vel}, linear velocity: {sw.lin_vel}")
         sleep(0.1)

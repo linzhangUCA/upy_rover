@@ -1,5 +1,6 @@
-from machine import Pin, PWM
 from time import ticks_us
+
+from machine import PWM, Pin
 
 
 class Sonar:
