@@ -13,16 +13,16 @@ class SentientWheel(Encoder):
         self._gratio = configs["gear_ratio"]
         self._whlrad = configs["wheel_radius"]
         self._meas_freq = configs["vel_meas_freq"]
+        # Variables
+        self.prev_counts = 0
+        self.ang_vel = 0.0
+        self.lin_vel = 0.0
         # Velocity measurement timer
         self.vel_meas_timer = Timer(
             freq=self._meas_freq,  # Hz
             mode=Timer.PERIODIC,
             callback=self.measure_velocity,
         )
-        # Variables
-        self.prev_counts = 0
-        self.ang_vel = 0.0
-        self.lin_vel = 0.0
 
     def measure_velocity(self, timer):
         curr_counts = self.counts
