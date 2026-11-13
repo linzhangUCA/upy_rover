@@ -11,17 +11,17 @@ class Encoder:
             ch_a_id (int): GPIO pin number for channel A.
             ch_b_id (int): GPIO pin number for channel B.
         """
+        # Variables
+        self.counts = 0
         # GPIO pins setup
-        self.ch_a = Pin(ch_a_id, Pin.IN)
-        self.ch_b = Pin(ch_b_id, Pin.IN)
+        self.ch_a = Pin(ch_a_id, Pin.IN, Pin.PULL_UP)
+        self.ch_b = Pin(ch_b_id, Pin.IN, Pin.PULL_UP)
         self.ch_a.irq(
             trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self.update_counts_a
         )
         self.ch_b.irq(
             trigger=Pin.IRQ_RISING | Pin.IRQ_FALLING, handler=self.update_counts_b
         )
-        # Variables
-        self.counts = 0
 
     def update_counts_a(self, pin):
         val_a = pin.value()
