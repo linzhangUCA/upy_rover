@@ -7,7 +7,7 @@ class Motor:
     Manages direction via two digital GPIO pins and speed using a PWM pin.
     """
 
-    def __init__(self, pwm_id: int, in1_id: int, in2_id: int, freq: int = 1000):
+    def __init__(self, pwm_id: int, in1_id: int, in2_id: int, freq: int = 10_000):
         """Initializes the motor pins and configures the default PWM frequency.
 
         Args:
@@ -20,6 +20,7 @@ class Motor:
         self.pwm_pin.freq(freq)
         self.in1_pin = Pin(in1_id, Pin.OUT)
         self.in2_pin = Pin(in2_id, Pin.OUT)
+        self.stop()
 
     def forward(self, effort: float = 0.0):
         """Drives the motor in the forward direction at the specified duty cycle.
@@ -28,7 +29,8 @@ class Motor:
             effort (float, optional): Duty cycle normalized between 0.0 (off)
                 and 1.0 (full speed). Defaults to 0.0.
         """
-        assert 0.0 <= effort <= 1.0  # make sure effort in range
+        if not 0.0 <= effort <= 1.0:
+            raise ValueError(f"Effort must be between 0.0 and 1.0, got {effort}")
         dc_u16 = int(65_535 * effort)
         self.in1_pin.value(1)
         self.in2_pin.value(0)
@@ -41,13 +43,14 @@ class Motor:
             effort (float, optional): Duty cycle normalized between 0.0 (off)
                 and 1.0 (full speed). Defaults to 0.0.
         """
-        assert 0.0 <= effort <= 1.0
+        if not 0.0 <= effort <= 1.0:
+            raise ValueError(f"Effort must be between 0.0 and 1.0, got {effort}")
         dc_u16 = int(65_535 * effort)
         self.in1_pin.value(0)
         self.in2_pin.value(1)
         self.pwm_pin.duty_u16(dc_u16)
 
-    def short_break(self):
+    def short_brake(self):
         """Stops the motor using active braking.
 
         Sets both direction pins HIGH and PWM to LOW.
@@ -103,7 +106,7 @@ if __name__ == "__main__":
     mot.stop()
     print("Motor coasting.")
     sleep(0.5)
-    mot.short_break()
+    mot.short_brake()
     print("Motor braking.")
     sleep(0.5)
     STBY.value(0)
