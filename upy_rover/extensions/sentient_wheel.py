@@ -12,7 +12,7 @@ class SentientWheel(Encoder):
         self._cpr = configs["encoder_cpr"]
         self._gratio = configs["gear_ratio"]
         self._whlrad = configs["wheel_radius"]
-        self._meas_freq = configs["vel_meas_freq"]
+        self._meas_freq = configs["meas_freq"]
         # Variables
         self.prev_counts = 0
         self.ang_vel = 0.0
@@ -47,14 +47,14 @@ if __name__ == "__main__":
         "encoder_cpr": 28,
         "gear_ratio": 100,
         "wheel_radius": 0.022,
-        "vel_meas_freq": 200,
+        "meas_freq": 200,
     }
     right_configs = {
         "encoder_pin_ids": (16, 17),
         "encoder_cpr": 28,
         "gear_ratio": 100,
         "wheel_radius": 0.022,
-        "vel_meas_freq": 200,
+        "meas_freq": 200,
     }
     sw = SentientWheel(configs=left_configs)
     m = Motor(15, 13, 14)
